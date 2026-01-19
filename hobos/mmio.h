@@ -1,27 +1,31 @@
 #ifndef __MMIO_H_
 #define __MMIO_H_
 
-#include <stdint.h>
+#include "lib/stdlib.h"
+#include "lib/pt_lib.h"
 
-#define BITP(pos) (1 << pos)
 
 #define u64	uint64_t
 #define u32	uint32_t
 #define u16	uint16_t
 #define u8	uint8_t
 
-#define WRITE_REG(reg_addr, reg_size, val) \
+#define write_reg(reg_addr, reg_size, val) \
 	*(u##reg_size *) reg_addr = val
 
-#define REG(reg_addr, reg_size) \
-	*(u##reg_size *) reg_addr
-
-#define CLEAR_REG(reg_addr, reg_size) \
+#define clear_reg(reg_addr, reg_size) \
 	*(u##reg_size *) reg_addr = 0
 
+#define read_reg(reg_addr, reg_size) \
+	*(u##reg_size *) reg_addr
+
+
 void get_rpi_version(void);
-void mmio_write(uint32_t offset, uint32_t val);
-uint32_t mmio_read(uint32_t offset);
+void *ioremap (uint64_t addr);
 void mmio_init(void);
+void mmio_write(uint32_t offset, uint32_t val);
+void mmio_write_long(uint64_t offset, uint64_t val);
+uint32_t mmio_read(uint32_t offset);
+uint64_t mmio_read_long(uint64_t offset);
 
 #endif

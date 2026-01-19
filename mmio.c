@@ -35,18 +35,29 @@ inline void get_rpi_version(void)
 	}
 }
 
-inline void mmio_write(uint32_t offset, uint32_t val)
+void mmio_write(uint32_t offset, uint32_t val)
 {
 	*(volatile uint32_t *)(mmio_base + offset) = val;
 }
 
-inline uint32_t mmio_read(uint32_t offset)
+uint32_t mmio_read(uint32_t offset)
 {
 	return *(volatile uint32_t *)(mmio_base + offset);
 }
 
+void mmio_write_long(uint64_t offset, uint64_t val)
+{
+	*(volatile uint64_t *)(mmio_base + offset) = val;
+}
+
+uint64_t mmio_read_long(uint64_t offset)
+{
+	return *(volatile uint64_t *)(mmio_base + offset);
+}
+
 void mmio_init(void)
 {
+	get_rpi_version();
 	switch(rpi_version)
 	{
 		case 3:
@@ -65,9 +76,3 @@ void mmio_init(void)
 			mmio_base = 0x20000000;
 	}
 }
-
-inline void delay(uint32_t count)
-{
-	while(count--) {asm volatile("nop");}
-}
-
