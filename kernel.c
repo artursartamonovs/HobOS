@@ -63,19 +63,19 @@ static void heartbeat(void)
 void main(void)
 {
 	mmio_init();
-	init_mmu();
-	setup_console();
+	//init_mmu();
+	//setup_console();
 
-	init_device_drivers();
+	//init_device_drivers();
 
-	init_smp();
-	switch_vmem();
+	//init_smp();
+	//switch_vmem();
 
-	heartbeat();
+	//heartbeat();
 
 	while (1) {
 		//start shell here
-		kprintf("waiting\n");
-		delay(0x20000000);
+		//kprintf("waiting\n");
+		//delay(0x20000000);
 	}
 }
