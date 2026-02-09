@@ -70,7 +70,9 @@ void mmio_init(void)
 			//uart offset: 0x30000
 			//uart address: 0x107d001000
 			//uart address = BAR + offset
-			mmio_base = 0x107cfd1000;
+			//mmio_base = 0x107cfd1000;
+			//pcie init
+			mmio_base = 0x1c00000000;
 			break;
 		default:
 			mmio_base = 0x20000000;
