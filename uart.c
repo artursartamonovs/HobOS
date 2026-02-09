@@ -86,25 +86,16 @@ static char mini_uart_getc(void)
 static void uart_wait_for_idle(uint8_t tx_rx)
 {
 	if (tx_rx)
-		while (read_reg(uart_reg(PL011_FR), 8) & PL011_FR_TXFF); //TX is FULL
+		while (read_reg(uart_reg(FR), 8) & BITP(5)); //TX is FULL
 	else
-		while (read_reg(uart_reg(PL011_FR), 8) & PL011_FR_RXFE); //RX is EMPTY
+		while (read_reg(uart_reg(FR), 8) & BITP(4)); //RX is EMPTY
 
-}
-
-static void pl011_uart_init(void *priv) {
-	//disable UART
-	write_reg(uart_reg(PL011_CR),32,0x0);
-	//config uart
-	write_reg(uart_reg(PL011_LCRH), 32, PL011_LCRH_WLEN_8BIT);
-	//enable UART
-	write_reg(uart_reg(PL011_CR),32,PL011_CR_UARTEN|PL011_CR_TXE|PL011_CR_RXE);
 }
 
 static void uart_putc(char c)
 {
 	uart_wait_for_idle(1);
-	write_reg(uart_reg(PL011_DR), 8, c);
+	write_reg(uart_reg(DR), 8, c);
 }
 
 static void uart_puts(char *c)
@@ -118,31 +109,30 @@ static void uart_puts(char *c)
 static char uart_getc(void)
 {
 	uart_wait_for_idle(0);
-	return read_reg(uart_reg(PL011_DR), 8);
+	return read_reg(uart_reg(DR), 8);
 }
 
 static void uart_init(void *priv)
 {
 	uint64_t base;
 
-	if (rpi_version == 5) {
-		base = RPI_5_UART0_BASE;
-	
-		uart_dev.quirks = pl011_uart_init;
-		uart_dev.getc = uart_getc;
-		uart_dev.putc = uart_putc;
-		uart_dev.puts = uart_puts;
-	} else {
-		base = AUX_IO_BASE;
-		uart_dev.priv = priv;
+        if (rpi_version == 5) {
+    		base = RPI_5_UART0_BASE;
+    		
+    		uart_dev.getc = uart_getc;
+    		uart_dev.putc = uart_putc;
+    		uart_dev.puts = uart_puts;
+        } else {
+    		base = AUX_IO_BASE;
+    		uart_dev.priv = priv;
+    
+    		uart_dev.quirks = mini_uart_init;
+    		uart_dev.getc = mini_uart_getc;
+    		uart_dev.putc = mini_uart_putc;
+    		uart_dev.puts = mini_uart_puts;
+        }
 
-		uart_dev.quirks = mini_uart_init;
-		uart_dev.getc = mini_uart_getc;
-		uart_dev.putc = mini_uart_putc;
-		uart_dev.puts = mini_uart_puts;
-	}
-
-	uart_dev.base = (uint64_t *)ioremap(base + mmio_base);
+    	uart_dev.base = (uint64_t *)ioremap(base + mmio_base);
 
 	/* 
 	* NOTE: Current implementation is not complete and is assisted
